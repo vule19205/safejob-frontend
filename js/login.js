@@ -1,6 +1,9 @@
+
 const loginForm = document.getElementById("loginForm");
 const passwordInput = document.getElementById("password");
 const togglePassword = document.getElementById("togglePassword");
+
+const API_URL = "https://safejob-85eu.onrender.com/api/login";
 
 // An hien mat khau
 togglePassword.addEventListener("click", function () {
@@ -13,13 +16,12 @@ togglePassword.addEventListener("click", function () {
         : '<i class="bi bi-eye"></i>';
 });
 
-// Kiem tra thong tin dang nhap
-loginForm.addEventListener("submit", function (event) {
+// Dang nhap
+loginForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const email = document.getElementById("email").value.trim();
     const password = passwordInput.value;
-
     const message = document.getElementById("loginMessage");
 
     message.innerHTML = "";
@@ -30,6 +32,46 @@ loginForm.addEventListener("submit", function (event) {
         return;
     }
 
+    // Hien thi trang thai dang xu ly
     message.innerHTML =
-        '<div class="alert alert-info">Giao diện đã sẵn sàng. Chức năng kết nối Backend sẽ được thực hiện ở bước tiếp theo.</div>';
+        '<div class="alert alert-info">Đang kiểm tra tài khoản...</div>';
+
+    try {
+        const formData = new URLSearchParams();
+
+        formData.append("email", email);
+        formData.append("password", password);
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            message.innerHTML =
+                '<div class="alert alert-success">Đăng nhập thành công! Đang chuyển trang...</div>';
+
+            setTimeout(function () {
+                window.location.href = "index.html";
+            }, 1000);
+
+        } else {
+            message.innerHTML =
+                '<div class="alert alert-danger">' +
+                (result.message || "Email hoặc mật khẩu không chính xác!") +
+                '</div>';
+        }
+
+    } catch (error) {
+        console.error("Loi dang nhap:", error);
+
+        message.innerHTML =
+            '<div class="alert alert-danger">Không thể kết nối máy chủ. Vui lòng thử lại!</div>';
+    }
 });
