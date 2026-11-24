@@ -1,6 +1,7 @@
-
 // Địa chỉ API Backend Java
 const API_URL = "https://safejob-85eu.onrender.com/api/jobs";
+const SESSION_API = "https://safejob-85eu.onrender.com/api/session";
+const LOGOUT_API = "https://safejob-85eu.onrender.com/logout";
 
 let allJobs = [];
 
@@ -12,6 +13,111 @@ function normalizeText(text) {
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/đ/g, "d")
         .trim();
+}
+
+// Kiểm tra trạng thái đăng nhập
+async function checkLoginSession() {
+    const authGuest = document.getElementById("authGuest");
+    const authUser = document.getElementById("authUser");
+    const userName = document.getElementById("userName");
+
+    try {
+        const response = await fetch(SESSION_API, {
+            method: "GET",
+            credentials: "include",
+            cache: "no-store"
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success && result.loggedIn) {
+
+            // Hiển thị tên người dùng
+            if (userName) {
+                userName.textContent =
+                    result.user.fullName || "Người dùng";
+            }
+
+            // Ẩn nút đăng nhập và đăng ký
+            if (authGuest) {
+                authGuest.classList.add("d-none");
+            }
+
+            // Hiện khu vực tài khoản
+            if (authUser) {
+                authUser.classList.remove("d-none");
+                authUser.classList.add("d-flex");
+            }
+
+        } else {
+            showGuestMenu();
+        }
+
+    } catch (error) {
+        console.error("Lỗi kiểm tra đăng nhập:", error);
+        showGuestMenu();
+    }
+}
+
+// Hiển thị menu khi chưa đăng nhập
+function showGuestMenu() {
+    const authGuest = document.getElementById("authGuest");
+    const authUser = document.getElementById("authUser");
+
+    if (authGuest) {
+        authGuest.classList.remove("d-none");
+    }
+
+    if (authUser) {
+        authUser.classList.remove("d-flex");
+        authUser.classList.add("d-none");
+    }
+}
+
+// Đăng xuất
+async function logout() {
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    try {
+        if (logoutBtn) {
+            logoutBtn.disabled = true;
+            logoutBtn.textContent = "Đang đăng xuất...";
+        }
+
+        const response = await fetch(LOGOUT_API, {
+            method: "GET",
+            credentials: "include"
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            alert("Đăng xuất thành công!");
+
+            // Cập nhật giao diện
+            showGuestMenu();
+
+            // Xóa tên người dùng đang hiển thị
+            const userName = document.getElementById("userName");
+
+            if (userName) {
+                userName.textContent = "Người dùng";
+            }
+
+        } else {
+            alert(result.message || "Đăng xuất không thành công.");
+        }
+
+    } catch (error) {
+        console.error("Lỗi đăng xuất:", error);
+        alert("Không thể kết nối Backend để đăng xuất.");
+
+    } finally {
+        if (logoutBtn) {
+            logoutBtn.disabled = false;
+            logoutBtn.textContent = "Đăng xuất";
+        }
+    }
 }
 
 // Lấy dữ liệu việc làm từ Backend
@@ -123,16 +229,30 @@ function searchJobs() {
     });
 }
 
-// Nhấn Enter cũng tìm kiếm được
+// Khởi chạy khi trang được tải
 document.addEventListener("DOMContentLoaded", function() {
+
+    // Tải danh sách việc làm
     loadJobs();
 
+    // Kiểm tra tài khoản đăng nhập
+    checkLoginSession();
+
+    // Gắn sự kiện đăng xuất
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout);
+    }
+
+    // Nhấn Enter ở ô từ khóa để tìm kiếm
     document.getElementById("keyword").addEventListener("keydown", function(event) {
         if (event.key === "Enter") {
             searchJobs();
         }
     });
 
+    // Nhấn Enter ở ô địa điểm để tìm kiếm
     document.getElementById("location").addEventListener("keydown", function(event) {
         if (event.key === "Enter") {
             searchJobs();
