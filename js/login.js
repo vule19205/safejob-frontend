@@ -32,7 +32,6 @@ loginForm.addEventListener("submit", async function (event) {
         return;
     }
 
-    // Hien thi trang thai dang xu ly
     message.innerHTML =
         '<div class="alert alert-info">Đang kiểm tra tài khoản...</div>';
 
@@ -57,8 +56,16 @@ loginForm.addEventListener("submit", async function (event) {
             message.innerHTML =
                 '<div class="alert alert-success">Đăng nhập thành công! Đang chuyển trang...</div>';
 
+            const role = result.user.role;
+
             setTimeout(function () {
-                window.location.href = "index.html";
+                if (role === "admin") {
+                    window.location.href = "admin.html";
+                } else if (role === "employer") {
+                    window.location.href = "employer.html";
+                } else {
+                    window.location.href = "index.html";
+                }
             }, 1000);
 
         } else {
