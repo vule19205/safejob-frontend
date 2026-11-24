@@ -1,0 +1,60 @@
+body {
+    background: #f4f7fb;
+    font-family: Arial, sans-serif;
+}
+
+.sidebar {
+    min-height: 100vh;
+    background: #102b50;
+    color: white;
+}
+
+.sidebar a {
+    display: block;
+    color: #dce7f5;
+    text-decoration: none;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background: #24558b;
+    color: white;
+}
+
+.brand {
+    font-size: 25px;
+    font-weight: bold;
+    color: white;
+}
+
+.content {
+    padding: 30px;
+}
+
+.stat-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+}
+
+.table th {
+    background: #edf3fa;
+    white-space: nowrap;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        min-height: auto;
+    }
+
+    .content {
+        padding: 15px;
+    }
+}
